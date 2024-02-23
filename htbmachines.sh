@@ -26,6 +26,7 @@ function helpPanel(){
   echo -e "\n${yellowColour}[+] ${endColour}Uso:"
   echo -e "\t${purpleColour}m)${endColour} Buscar por un nombre de máquina"
   echo -e "\t${purpleColour}i)${endColour} Buscar por dirección IP"
+  echo -e "\t${purpleColour}s)${endColour} Buscar por skills"
   echo -e "\t${purpleColour}o)${endColour} Muestra las máquinas del sistema operativo introducido"
   echo -e "\t${purpleColour}u)${endColour} Actualiza los archivos necesarios"
   echo -e "\t${purpleColour}y)${endColour} Obtener el enlace de YouTube"
@@ -181,6 +182,23 @@ function getOSDifficultyMachines(){
 
 }
 
+function getSkill(){
+  skill="$1"
+
+  check_skill="$(cat bundle.js | grep "skills: " -B 6 | grep "$skill" -i -B 6 | grep "name: " | awk 'NF{print $NF}' | tr -d "," | tr -d '"'| column)"
+
+  if [ "$check_skill" ]; then
+
+    echo -e "\n${yellowColour}[+]${endColour} Representando las máquinas donde puedes practicar ${blueColour}$skill${endColour}\n${purpleColour}$check_skill${endColour}"
+
+  else
+    
+    echo -e "\n${redColour}[!] No se ha encontrado ninguna máquina con la skill $skill ${endColour}\n"
+
+  fi
+
+}
+
 #Indicadores (solo números)
 declare -i parameter_counter=0
 
@@ -189,7 +207,7 @@ declare -i chivato_difficulty=0
 declare -i chivato_os=0
 
 
-while getopts "m:ui:y:d:o:h" arg; do
+while getopts "m:ui:y:d:o:s:h" arg; do
 
   case $arg in
     m) machineName="$OPTARG"; let parameter_counter+=1;;
@@ -198,6 +216,7 @@ while getopts "m:ui:y:d:o:h" arg; do
     y) machineName="$OPTARG"; let parameter_counter+=4;;
     d) difficulty="$OPTARG"; chivato_difficulty=1; let parameter_counter+=5;;
     o) os="$OPTARG"; chivato_os=1; let parameter_counter+=6;;
+    s) skill="$OPTARG"; let parameter_counter+=7;;
     h) ;;
 
   esac
@@ -231,6 +250,10 @@ elif [ $parameter_counter -eq 6 ]; then
 elif [ $chivato_difficulty -eq 1 ] && [ $chivato_os -eq 1 ]; then
 
   getOSDifficultyMachines $difficulty $os
+
+elif [ $parameter_counter -eq 7 ]; then
+
+  getSkill "$skill"
 
 else
   
