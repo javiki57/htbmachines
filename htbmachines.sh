@@ -27,6 +27,7 @@ function helpPanel(){
   echo -e "\t${purpleColour}m)${endColour} Buscar por un nombre de máquina"
   echo -e "\t${purpleColour}i)${endColour} Buscar por dirección IP"
   echo -e "\t${purpleColour}s)${endColour} Buscar por skills"
+  echo -e "\t${purpleColour}c)${endColour} Buscar por certificaciones"
   echo -e "\t${purpleColour}o)${endColour} Muestra las máquinas del sistema operativo introducido"
   echo -e "\t${purpleColour}u)${endColour} Actualiza los archivos necesarios"
   echo -e "\t${purpleColour}y)${endColour} Obtener el enlace de YouTube"
@@ -199,6 +200,26 @@ function getSkill(){
 
 }
 
+
+function getCert(){
+  
+  cert="$1"
+
+  cert_checker="$(cat bundle.js | grep "like: *\"$cert\"*" -i -B 8 | grep "name: " | sed 's/^ *//' | tr -d "," | awk 'NF{print $NF}' | tr -d '"' | column)"
+
+  if [ "$cert_checker" ]; then
+  
+    echo -e "\n${yellowColour}[+]${endColour} Mostrando las máquinas que podrían salirte en la certificación ${purpleColour}$cert${endColour}:\n${turquoiseColour}$cert_checker${endColour}"
+    
+
+  else
+  
+    echo -e "${redColour}[!] No existe ninguna máquina que se parezca a la certificación $cert${endColour}"
+  
+  fi
+
+}
+
 #Indicadores (solo números)
 declare -i parameter_counter=0
 
@@ -207,7 +228,7 @@ declare -i chivato_difficulty=0
 declare -i chivato_os=0
 
 
-while getopts "m:ui:y:d:o:s:h" arg; do
+while getopts "m:ui:y:d:o:s:c:h" arg; do
 
   case $arg in
     m) machineName="$OPTARG"; let parameter_counter+=1;;
@@ -217,6 +238,7 @@ while getopts "m:ui:y:d:o:s:h" arg; do
     d) difficulty="$OPTARG"; chivato_difficulty=1; let parameter_counter+=5;;
     o) os="$OPTARG"; chivato_os=1; let parameter_counter+=6;;
     s) skill="$OPTARG"; let parameter_counter+=7;;
+    c) cert="$OPTARG"; let parameter_counter+=8;;
     h) ;;
 
   esac
@@ -254,6 +276,10 @@ elif [ $chivato_difficulty -eq 1 ] && [ $chivato_os -eq 1 ]; then
 elif [ $parameter_counter -eq 7 ]; then
 
   getSkill "$skill"
+
+elif [ $parameter_counter -eq 8 ]; then
+
+  getCert "$cert"
 
 else
   
